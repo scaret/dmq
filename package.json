@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/scaret/dmq/issues"
   },
-  "homepage": "https://github.com/scaret/dmq#readme"
+  "homepage": "https://github.com/scaret/dmq#readme",
+  "devDependencies": {
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
+  }
 }
