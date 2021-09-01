@@ -1,0 +1,22 @@
+{
+  "resolveJsonModule": true,
+  "compileOnSave": true,
+  "compilerOptions": {
+    "sourceMap": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "target": "es2017",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "strict": true,
+    "outDir": "types",
+    "declaration": false,
+    "esModuleInterop": true,
+    "declarationMap": false
+  },
+  "include": [
+    "lib"
+  ]
+}
