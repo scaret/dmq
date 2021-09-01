@@ -1,0 +1,19 @@
+{
+  "name": "dmq",
+  "version": "0.0.1",
+  "description": "a pubsub library implemented in WebTransport Datagram &amp; WebWorker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scaret/dmq.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scaret/dmq/issues"
+  },
+  "homepage": "https://github.com/scaret/dmq#readme"
+}
