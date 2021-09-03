@@ -1,6 +1,7 @@
 const main = async ()=>{
     const client = new DMQ.DMQClient({worker: true});
-    await client.connect("https://ip-127-0-0-1.wrtc.dev:4434/counter")
+    // await client.connect("https://ip-127-0-0-1.wrtc.dev:4434/counter")
+    await client.connect("https://ci.wrtc.dev:4434/counter")
     console.log("success");
 
     const resArr = [];
@@ -26,7 +27,7 @@ const main = async ()=>{
             req.fail = err;
             resArr.push(req)
         });
-    }, 100)
+    }, 0)
     setInterval(()=>{
         let total = 0;
         let success = 0;
@@ -39,7 +40,7 @@ const main = async ()=>{
                 total++;
                 if (res.fail){
                     upstreamLoss++;
-                }else if (res.success.T3){
+                }else if (!res.success.T4){
                     downstreamLoss++
                 }else{
                     success++

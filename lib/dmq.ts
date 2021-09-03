@@ -19,6 +19,8 @@ interface MsgReq{
     msgid?: number;
     type?: string;
     T1?: number;
+    T2?: number;
+    ackReceived?: boolean;
     resolve: (data: any)=>any
     reject: (err: any)=>any
 }
@@ -76,12 +78,16 @@ class DMQClient{
                     if (!msgReq){
                         return;
                     }
-                    this.dgram.pendingReqs.splice(i, 1);
-                    const publishRes:PublishResult = {
-                        T1: msgReq.T1,
-                        T2: pbMsgDown.getAckt2List()[index],
+                    msgReq.ackReceived = true;
+                    msgReq.T2 = pbMsgDown.getAckt2List()[index];
+                    if (msgReq.type === "DMQ_REPORT"){
+                        this.dgram.pendingReqs.splice(i, 1);
+                        const publishRes:PublishResult = {
+                            T1: msgReq.T1,
+                            T2: pbMsgDown.getAckt2List()[index],
+                        }
+                        msgReq.resolve(publishRes);
                     }
-                    msgReq.resolve(publishRes);
                 });
                 if (respondTo){
                     this.dgram.ack.push(respondTo);
@@ -133,6 +139,12 @@ class DMQClient{
                 let req = this.dgram.pendingReqs[i];
                 if (req.T1 && now - req.T1 > this.timeout){
                     this.dgram.pendingReqs.splice(i, 1);
+                    if (req.type === "DMQ_REQUEST" && req.ackReceived){
+                        req.resolve({
+                            T1: req.T1,
+                            T2: req.T2,
+                        })
+                    }
                     req.reject(new Error("TIMEOUT"));
                 }
             }
