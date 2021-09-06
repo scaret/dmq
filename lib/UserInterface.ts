@@ -1,13 +1,13 @@
-export interface PublishOptions{
+export interface PublishOptions {
     topic: string;
-    payload: Uint8Array|string;
+    payload: Uint8Array | string;
     /**
      * 需不需要服务端立刻发出确认消息
      */
     ack?: boolean;
 }
 
-export interface PublishResult{
+export interface PublishResult {
     /**
      * 客户端发送请求的时间戳
      */
@@ -24,4 +24,10 @@ export interface PublishResult{
      * 客户端接收请求的时间戳，仅当 PublishOptions.ack 为true时有（不然服务端不会立即返回）
      */
     T4?: number;
+}
+
+export interface DMQClientOptions {
+    worker: boolean;
+    timeoutInterval?: number;
+    dgramTimeout?: number;
 }

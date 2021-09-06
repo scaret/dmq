@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
     mode: "development",
     entry: {
-        DMQ: "./lib/dmq.ts"
+        DMQ: "./lib/entry.ts"
     },
     output: {
         path: path.join(__dirname, 'dist'),

@@ -1,38 +1,23 @@
-import models_pb from "./proto-gen/models_pb"
-import WorkerAgent from "./worker"
+import models_pb from "../proto-gen/models_pb"
+import WorkerAgent from "../worker/WorkerAgent"
+
+import {MsgReq, ThreadControlMessage, DatagramMessage} from "../MsgMainToWorker";
+
+import {DatagramSignalSent, DatagramDownstreamMessage, ThreadControlAckMessage} from "../MsgWorkerToMain"
+
 import {
-    DatagramDownstreamMessage,
-    DatagramMessage,
-    DatagramSignalSent,
-    ThreadControlAckMessage,
-    ThreadControlMessage
-} from "./Message";
-import {PublishOptions, PublishResult} from "./interface";
+    DMQClientOptions,
+    PublishOptions,
+    PublishResult
+} from "../UserInterface";
 
-interface DMQClientOptions{
-    worker: boolean;
-    timeoutInterval?: number;
-    dgramTimeout?: number;
-}
-
-interface MsgReq{
-    msgid?: number;
-    type?: string;
-    T1?: number;
-    T2?: number;
-    ackReceived?: boolean;
-    resolve: (data: any)=>any
-    reject: (err: any)=>any
-}
-
-class DMQClient{
-    worker: Worker|WorkerAgent;
+class DMQClient {
+    worker: Worker | WorkerAgent;
     interval: number;
     thread: {
         pendingReqs: MsgReq[],
     } = {pendingReqs: []}
-    control: {
-    } = {}
+    control: {} = {}
     dgram: {
         msgid: number;
         pendingReqs: MsgReq[],
@@ -40,64 +25,64 @@ class DMQClient{
     } = {msgid: 0, pendingReqs: [], ack: []}
     private timer?: ReturnType<typeof setInterval>;
     private timeout: number;
+
     constructor(options: DMQClientOptions) {
-        if (options.worker){
-           this.worker = new Worker(new URL('./worker.ts', import.meta.url));
-        }
-        else{
+        if (options.worker) {
+            this.worker = new Worker(new URL('../worker/WorkerAgent.ts', import.meta.url));
+        } else {
             this.worker = new WorkerAgent();
         }
         this.interval = options.timeoutInterval || 1000
         this.timeout = options.dgramTimeout || 3000
         this.startTimeoutChecker()
-        this.worker.onmessage = (evt: { data: ThreadControlAckMessage|DatagramDownstreamMessage|DatagramSignalSent})=>{
+        this.worker.onmessage = (evt: { data: ThreadControlAckMessage | DatagramDownstreamMessage | DatagramSignalSent }) => {
             // console.log("onmessage", evt.data);
-            if (evt.data.type === "DMQ_CONNECT_SUCCESS" || evt.data.type === "DMQ_CONNECT_FAIL"){
+            if (evt.data.type === "DMQ_CONNECT_SUCCESS" || evt.data.type === "DMQ_CONNECT_FAIL") {
                 const index = this.thread.pendingReqs.findIndex((msg) => msg.type === "DMQ_CONNECT");
-                if (index === -1){
+                if (index === -1) {
                     console.error(`Unexpected Response`, this.thread.pendingReqs);
                     return;
                 }
                 const req = this.thread.pendingReqs[index];
                 this.thread.pendingReqs.splice(index, 1);
                 evt.data.type === "DMQ_CONNECT_SUCCESS" ? req.resolve(evt.data) : req.reject(evt.data)
-            }else if (evt.data.type === "DMQ_DATAGRAM_SIGNAL_SENT"){
+            } else if (evt.data.type === "DMQ_DATAGRAM_SIGNAL_SENT") {
                 const signalSent = evt.data as DatagramSignalSent;
-                const msgReq = this.dgram.pendingReqs.find((req)=>req.msgid === signalSent.msgid);
-                if (msgReq){
+                const msgReq = this.dgram.pendingReqs.find((req) => req.msgid === signalSent.msgid);
+                if (msgReq) {
                     msgReq.T1 = signalSent.T1;
                 }
-            }else if (evt.data.type === "DMQ_DOWNSTREAM"){
+            } else if (evt.data.type === "DMQ_DOWNSTREAM") {
                 const downstreamMessage = evt.data as DatagramDownstreamMessage
                 const pbMsgDown = models_pb.PublishAckDgram.deserializeBinary(downstreamMessage.buf);
                 this.dgram.ack = ([] as number[]).concat(pbMsgDown.getAckList())
                 const respondTo = pbMsgDown.getRespondto()
-                pbMsgDown.getAckList().forEach((ack: number, index)=>{
-                    const i = this.dgram.pendingReqs.findIndex((req)=>req.msgid === ack);
+                pbMsgDown.getAckList().forEach((ack: number, index) => {
+                    const i = this.dgram.pendingReqs.findIndex((req) => req.msgid === ack);
                     const msgReq = this.dgram.pendingReqs[i];
-                    if (!msgReq){
+                    if (!msgReq) {
                         return;
                     }
                     msgReq.ackReceived = true;
                     msgReq.T2 = pbMsgDown.getAckt2List()[index];
-                    if (msgReq.type === "DMQ_REPORT"){
+                    if (msgReq.type === "DMQ_REPORT") {
                         this.dgram.pendingReqs.splice(i, 1);
-                        const publishRes:PublishResult = {
+                        const publishRes: PublishResult = {
                             T1: msgReq.T1,
                             T2: pbMsgDown.getAckt2List()[index],
                         }
                         msgReq.resolve(publishRes);
                     }
                 });
-                if (respondTo){
+                if (respondTo) {
                     this.dgram.ack.push(respondTo);
-                    const i = this.dgram.pendingReqs.findIndex((req)=>req.msgid === respondTo);
-                    if (i < 0){
+                    const i = this.dgram.pendingReqs.findIndex((req) => req.msgid === respondTo);
+                    if (i < 0) {
                         // console.error(`Res not found`, respondTo, i);
-                    }else{
+                    } else {
                         const msgReq = this.dgram.pendingReqs[i];
                         this.dgram.pendingReqs.splice(i, 1);
-                        const publishRes:PublishResult = {
+                        const publishRes: PublishResult = {
                             T1: msgReq.T1,
                             T2: pbMsgDown.getT2(),
                             T4: downstreamMessage.T4
@@ -108,18 +93,20 @@ class DMQClient{
             }
         }
     }
-    private async sendThreadMsg(message: ThreadControlMessage, timeout = 5000){
-        return new Promise((resolve, reject)=>{
-           this.thread.pendingReqs.push({
-               type: 'DMQ_CONNECT',
-               resolve,
-               reject
-           });
-           this.worker.postMessage(message)
+
+    private async sendThreadMsg(message: ThreadControlMessage, timeout = 5000) {
+        return new Promise((resolve, reject) => {
+            this.thread.pendingReqs.push({
+                type: 'DMQ_CONNECT',
+                resolve,
+                reject
+            });
+            this.worker.postMessage(message)
         });
     }
-    private async sendDgramMsg(message: DatagramMessage, msgid: number, timeout = 5000){
-        return new Promise((resolve, reject)=>{
+
+    private async sendDgramMsg(message: DatagramMessage, msgid: number, timeout = 5000) {
+        return new Promise((resolve, reject) => {
             this.dgram.pendingReqs.push({
                 msgid: msgid,
                 type: message.type,
@@ -129,17 +116,18 @@ class DMQClient{
             this.worker.postMessage(message)
         });
     }
-    private startTimeoutChecker(){
-        if (this.timer){
+
+    private startTimeoutChecker() {
+        if (this.timer) {
             clearInterval(this.timer);
         }
-        this.timer = setInterval(()=>{
+        this.timer = setInterval(() => {
             const now = Date.now();
-            for (let i = this.dgram.pendingReqs.length - 1; i >=0; i--){
+            for (let i = this.dgram.pendingReqs.length - 1; i >= 0; i--) {
                 let req = this.dgram.pendingReqs[i];
-                if (req.T1 && now - req.T1 > this.timeout){
+                if (req.T1 && now - req.T1 > this.timeout) {
                     this.dgram.pendingReqs.splice(i, 1);
-                    if (req.type === "DMQ_REQUEST" && req.ackReceived){
+                    if (req.type === "DMQ_REQUEST" && req.ackReceived) {
                         req.resolve({
                             T1: req.T1,
                             T2: req.T2,
@@ -150,16 +138,18 @@ class DMQClient{
             }
         }, this.interval);
     }
-    async connect(url: string){
+
+    async connect(url: string) {
         const res = await this.sendThreadMsg({
             type: "DMQ_CONNECT",
             url: url
         });
         return res;
     }
-    async publish(options: PublishOptions){
+
+    async publish(options: PublishOptions) {
         const msgid = ++this.dgram.msgid;
-        const transportMessage= new models_pb.PublishDgram();
+        const transportMessage = new models_pb.PublishDgram();
         transportMessage.setSeq(msgid);
         transportMessage.setTs(Date.now());
         transportMessage.setRequest(options.ack || false);
@@ -178,6 +168,4 @@ class DMQClient{
     }
 }
 
-export {
-    DMQClient
-}
+export default DMQClient
