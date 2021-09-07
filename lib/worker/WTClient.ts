@@ -1,10 +1,14 @@
-import {WebTransport} from "./WebTransport";
-import {DatagramDownstreamMessage} from "../MsgWorkerToMain";
+import {WebTransport, WebTransportBidirectionalStream} from "./WebTransport";
+import {DatagramDownstreamMessage, QuicDownstreamMessage} from "../MsgWorkerToMain";
 
 class WTClient {
     public transport?: WebTransport;
     public dgramWriter?: WritableStreamDefaultWriter;
-    public onmessage?: (msg: DatagramDownstreamMessage) => any
+    public quic: {
+        stream?: WebTransportBidirectionalStream,
+        writer?: WritableStreamDefaultWriter,
+    } = {};
+    public onmessage?: (msg: DatagramDownstreamMessage|QuicDownstreamMessage) => any
 
     async connect(url: string) {
         console.log(`Connecting to ${url}`)
@@ -24,10 +28,13 @@ class WTClient {
             throw new Error('connect failed');
         }
         this.dgramWriter = this.transport.datagrams.writable.getWriter();
+        this.quic.stream = await this.transport.createBidirectionalStream();
+        this.quic.writer = this.quic.stream.writable.getWriter();
         this.startReadDgrams();
+        this.startReadQuic();
     }
 
-    async startReadDgrams() {
+    private async startReadDgrams() {
         if (!this.transport) {
             throw new Error('No this.transport');
         }
@@ -44,6 +51,30 @@ class WTClient {
                     type: 'DMQ_DOWNSTREAM',
                     buf: value,
                     T4: Date.now()
+                })
+            }
+        }
+    }
+
+
+    private async startReadQuic() {
+        if (!this.quic.stream) {
+            throw new Error('No this.quic.stream');
+        }
+        var reader = this.quic.stream.readable.getReader();
+        while (true) {
+            const {value, done} = await reader.read();
+            // console.log("QUIC MSG", value)
+            let now = Date.now();
+            if (done) {
+                console.log('Done reading quic!');
+                return;
+            }
+            if (this.onmessage) {
+                this.onmessage({
+                    type: 'DMQ_QUIC_DOWNSTREAM',
+                    buf: value,
+                    T4: now
                 })
             }
         }

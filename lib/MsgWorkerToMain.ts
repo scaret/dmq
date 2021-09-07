@@ -10,9 +10,22 @@ export interface DatagramSignalSent {
     msgid: number;
 }
 
+export interface QuicSignalSent {
+    type: 'DMQ_QUIC_SIGNAL_SENT';
+    T1: number;
+    msgid: number;
+}
+
 export interface DatagramDownstreamMessage {
     // 以下主线程填写
     type: 'DMQ_DOWNSTREAM';
+    buf: Uint8Array;
+    T4: number;
+}
+
+export interface QuicDownstreamMessage {
+    // 以下主线程填写
+    type: 'DMQ_QUIC_DOWNSTREAM';
     buf: Uint8Array;
     T4: number;
 }

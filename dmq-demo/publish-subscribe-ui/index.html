@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="origin-trial" content="Amlrz0s3cBc7LoDfmSbKxNuRbJmRIQUGjgPU3+NlRUuATCGVvvKd8jbWl2GnvpRbAC0poT5WiRAHK7SS2tJ50w0AAABieyJvcmlnaW4iOiJodHRwczovL3dydGMuZGV2OjQwMDAiLCJmZWF0dXJlIjoiV2ViVHJhbnNwb3J0IiwiZXhwaXJ5IjoxNjM0MDgzMTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+</head>
+<body>
+    <div id="connect-container">
+        <label>
+            模式
+            <select id="worker">
+                <option value="yes">worker</option>
+                <option value="no">非worker</option>
+            </select>
+        </label>
+        <label>
+            服务端地址：<input id="broker-url" size="40" value="https://ip-127-0-0-1.wrtc.dev:4434/counter">
+        </label>
+        <button id="connect-btn">连接</button><span id="connect-result"></span>
+    </div>
+
+    <div id="pub-container" style="border-top: 1px solid black; display: none" class="container-connected">
+        <h5>发布</h5>
+        <label>
+            Topic: <input id="pub-topic" size="40" value="abcd">
+        </label>
+        <label>
+            Payload: <input id="pub-payload" size="40" value="你好">
+        </label>
+        <button id="pub-btn">发布</button>
+    </div>
+
+    <div id="sub-container" style="border-top: 1px solid black; display: none" class="container-connected">
+        <h5>订阅</h5>
+        <label>
+            Topic: <input id="sub-topic" size="40" value="abcd">
+        </label>
+        <button id="sub-btn">订阅</button>
+        <ul id="sub-topics">
+        </ul>
+    </div>
+
+    <div id="onmessage-container" style="border-top: 1px solid black; display: none" class="container-connected">
+        <h5>订阅消息列表（最新的在最上边）
+            <select id="showType">
+                <option value="text">将payload转为文本</option>
+                <option value="buflen">仅显示payload长度</option>
+            </select>
+        </h5>
+        <textarea id="message-list" cols="60" rows="20"></textarea>
+    </div>
+
+    <script src="../../dist/DMQ.js"></script>
+    <script src="../vendor/jquery-3.6.0.min.js"></script>
+    <script src="./index.js"></script>
+</body>
+</html>

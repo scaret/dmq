@@ -2,19 +2,49 @@ syntax = "proto2";
 
 message PublishDgram{
   required uint32 seq = 1;
-  required uint64 ts = 2;
-  optional bool request = 3;
-  required string topic = 4;
-  repeated uint32 ack = 5;
-  required bytes payload = 6;
+  required uint32 trunkid = 2;
+  required uint32 trunktotal = 3;
+  required uint64 ts = 4;
+  optional bool request = 5;
+  required string topic = 6;
+  repeated uint32 ack = 7;
+  required bytes payload = 8;
 }
 
-message PublishAckDgram{
+message DownstreamDgram{
   required uint32 seq = 1;
-  required uint64 T2 = 2;
-  optional uint64 T3 = 3;
-  optional uint32 respondto = 4;
-  repeated uint32 ack = 5;
-  repeated uint64 ackT2 = 6;
-  optional bytes payload = 7;
+  required string type = 2;// ACK DELIVERY
+  required uint64 T2 = 3;
+  optional uint64 T3 = 4;
+  optional uint32 respondto = 5;
+  repeated uint32 ack = 6;
+  repeated uint64 ackT2 = 7;
+  optional bytes payload = 8;
+}
+
+message Delivery{
+  required string topic = 1;
+  required bytes payload = 2;
+}
+
+message UpstreamMsg{
+  required uint32 seq = 1;
+  required string type = 2;//SUBSCRIBE UNSUBSCRIBE
+  optional bytes payload = 3;
+}
+
+message SubscribeMsg{
+  required string topic = 1;
+}
+
+message UnsubscribeMsg{
+  required string topic = 1;
+}
+
+message DownstreamMsg{
+  required uint32 seq = 1;
+  optional uint64 T2 = 2;
+  optional uint32 respondto = 3;
+  required string type = 4; // ACK
+  optional bytes payload = 5;
 }

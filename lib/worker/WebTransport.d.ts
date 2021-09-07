@@ -3,6 +3,13 @@ export class WebTransport {
 
     readonly ready: Promise<undefined>;
     datagrams: WebTransportDatagramDuplexStream;
+
+    createBidirectionalStream() : Promise<WebTransportBidirectionalStream>
+}
+
+export interface WebTransportBidirectionalStream {
+    readonly readable: ReadableStream;
+    readonly writable: WritableStream;
 }
 
 export interface WebTransportDatagramDuplexStream {

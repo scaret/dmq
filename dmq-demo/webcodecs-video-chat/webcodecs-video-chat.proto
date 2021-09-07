@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+message EncodedVideoTrunk{
+  required string type = 1; // key|delta
+  required uint64 timestamp = 2;
+  required uint64 duration = 3;
+  required bytes data = 4;
+}

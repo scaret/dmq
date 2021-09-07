@@ -31,17 +31,30 @@ logger = logging.getLogger(__name__)
 #     count on a new unidirectional stream.
 #   - For every incoming datagram, it sends a datagram with the length of
 #     datagram that was just received.
+
+userCnt = 0
+
+topics = {
+}
+
+
 class CounterHandler:
 
     def __init__(self, session_id, http: H3Connection) -> None:
+        global userCnt
         self._session_id = session_id
         self._http = http
         self._counters = defaultdict(int)
+        self.seq = 0
         self.msgReq = []
         self.msgReqT2 = []
-        self.seq = 0
+        self.quicSeq = 0
+        self.subscribedTopics = []
+        userCnt += 1
+        self.userid = userCnt
 
     def h3_event_received(self, event: H3Event) -> None:
+        now = round(time.time() * 1000)
         if isinstance(event, DatagramReceived):
             reqMsg = models_pb2.PublishDgram()
             reqMsg.ParseFromString(event.data)
@@ -52,11 +65,12 @@ class CounterHandler:
                     del self.msgReqT2[index]
                 except:
                     continue
-            now = round(time.time() * 1000)
             if reqMsg.request:
-                resMsg = models_pb2.PublishAckDgram()
+                # UDP Publish
+                resMsg = models_pb2.DownstreamDgram()
                 self.seq += 1
                 resMsg.seq = self.seq
+                resMsg.type = "ACK"
                 resMsg.T2 = now
                 resMsg.respondto = reqMsg.seq
                 resMsg.ack.extend(self.msgReq)
@@ -65,20 +79,60 @@ class CounterHandler:
                 self._http.send_datagram(self._session_id, resMsg.SerializeToString())
             self.msgReq.append(reqMsg.seq)
             self.msgReqT2.append(now)
+            # 广播消息
+            deliveryMsg = models_pb2.Delivery()
+            deliveryMsg.topic = reqMsg.topic
+            deliveryMsg.payload = reqMsg.payload
+            print("=====Delivery message from #", self.userid ,"on topic", deliveryMsg.topic, "packet" , reqMsg.trunkid, "/" , reqMsg.trunktotal, len(deliveryMsg.payload))
+            downstreamMsg = models_pb2.DownstreamDgram()
+            downstreamMsg.T2 = now
+            downstreamMsg.type = "DELIVERY"
+            downstreamMsg.ack.extend(self.msgReq)
+            downstreamMsg.ackT2.extend(self.msgReqT2)
+            downstreamMsg.payload = deliveryMsg.SerializeToString()
+
+            if reqMsg.topic in topics:
+                for user in topics[reqMsg.topic]:
+                    user.seq += 1
+                    downstreamMsg.seq = user.seq
+                    downstreamMsg.ack.extend(user.msgReq)
+                    downstreamMsg.ackT2.extend(user.msgReqT2)
+                    downstreamMsg.T3 = round(time.time() * 1000)
+                    print("DELIVER on topic", reqMsg.topic, "from user #", self.userid ,"to user #" , user.userid, "payload length", len(downstreamMsg.payload))
+                    user._http.send_datagram(user._session_id, downstreamMsg.SerializeToString())
+
         if isinstance(event, WebTransportStreamDataReceived):
-            self._counters[event.stream_id] += len(event.data)
-            if event.stream_ended:
-                if stream_is_unidirectional(event.stream_id):
-                    response_id = self._http.create_webtransport_stream(
-                        self._session_id, is_unidirectional=True)
-                else:
-                    response_id = event.stream_id
-                payload = str(self._counters[event.stream_id]).encode('ascii')
-                self._http._quic.send_stream_data(
-                    response_id, payload, end_stream=True)
-                self.stream_closed(event.stream_id)
+            quicReqMsg = models_pb2.UpstreamMsg()
+            quicReqMsg.ParseFromString(event.data)
+            if quicReqMsg.type == "SUBSCRIBE":
+                subscribeMsg = models_pb2.SubscribeMsg()
+                subscribeMsg.ParseFromString(quicReqMsg.payload)
+                self.subscribedTopics.append(subscribeMsg.topic)
+                self.quicSeq += 1
+                msgAck = models_pb2.DownstreamMsg()
+                msgAck.seq = self.quicSeq
+                msgAck.T2 = now
+                msgAck.respondto = quicReqMsg.seq
+                msgAck.type = "ACK"
+                self._http._quic.send_stream_data(event.stream_id, msgAck.SerializeToString(), end_stream=False)
+                # 把用户放在topic列表中
+                if not subscribeMsg.topic in topics:
+                    print("new topic", subscribeMsg.topic)
+                    topics[subscribeMsg.topic] = []
+                if not self in topics[subscribeMsg.topic]:
+                    print("add user #", self.userid, " to topic", subscribeMsg.topic)
+                    topics[subscribeMsg.topic].append(self)
+    def unsubscribe(self, topic):
+        if topic in topics:
+            for user in topics[topic]:
+                topics[topic].remove(self)
 
     def stream_closed(self, stream_id: int) -> None:
+        # 清除用户的订阅
+        for topic in self.subscribedTopics:
+            print("delete user #", self.userid, " from topic ", topic)
+            self.unsubscribe(topic)
+
         try:
             del self._counters[stream_id]
         except KeyError:

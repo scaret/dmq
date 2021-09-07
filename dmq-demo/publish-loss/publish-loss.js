@@ -1,7 +1,7 @@
 const main = async ()=>{
     const client = new DMQ.DMQClient({worker: true});
     // await client.connect("https://ip-127-0-0-1.wrtc.dev:4434/counter")
-    await client.connect("https://ci.wrtc.dev:4434/counter")
+    await client.connect("https://localhost.wrtc.dev:4434/counter")
     console.log("success");
 
     const resArr = [];

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cmodels.proto\"e\n\x0cPublishDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\n\n\x02ts\x18\x02 \x02(\x04\x12\x0f\n\x07request\x18\x03 \x01(\x08\x12\r\n\x05topic\x18\x04 \x02(\t\x12\x0b\n\x03\x61\x63k\x18\x05 \x03(\r\x12\x0f\n\x07payload\x18\x06 \x02(\x0c\"v\n\x0fPublishAckDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\n\n\x02T2\x18\x02 \x02(\x04\x12\n\n\x02T3\x18\x03 \x01(\x04\x12\x11\n\trespondto\x18\x04 \x01(\r\x12\x0b\n\x03\x61\x63k\x18\x05 \x03(\r\x12\r\n\x05\x61\x63kT2\x18\x06 \x03(\x04\x12\x0f\n\x07payload\x18\x07 \x01(\x0c'
+  serialized_pb=b'\n\x0cmodels.proto\"\x8a\x01\n\x0cPublishDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0f\n\x07trunkid\x18\x02 \x02(\r\x12\x12\n\ntrunktotal\x18\x03 \x02(\r\x12\n\n\x02ts\x18\x04 \x02(\x04\x12\x0f\n\x07request\x18\x05 \x01(\x08\x12\r\n\x05topic\x18\x06 \x02(\t\x12\x0b\n\x03\x61\x63k\x18\x07 \x03(\r\x12\x0f\n\x07payload\x18\x08 \x02(\x0c\"\x84\x01\n\x0f\x44ownstreamDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\n\n\x02T2\x18\x03 \x02(\x04\x12\n\n\x02T3\x18\x04 \x01(\x04\x12\x11\n\trespondto\x18\x05 \x01(\r\x12\x0b\n\x03\x61\x63k\x18\x06 \x03(\r\x12\r\n\x05\x61\x63kT2\x18\x07 \x03(\x04\x12\x0f\n\x07payload\x18\x08 \x01(\x0c\"*\n\x08\x44\x65livery\x12\r\n\x05topic\x18\x01 \x02(\t\x12\x0f\n\x07payload\x18\x02 \x02(\x0c\"9\n\x0bUpstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\x0f\n\x07payload\x18\x03 \x01(\x0c\"\x1d\n\x0cSubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"\x1f\n\x0eUnsubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"Z\n\rDownstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\n\n\x02T2\x18\x02 \x01(\x04\x12\x11\n\trespondto\x18\x03 \x01(\r\x12\x0c\n\x04type\x18\x04 \x02(\t\x12\x0f\n\x07payload\x18\x05 \x01(\x0c'
 )
 
 
@@ -41,36 +41,50 @@ _PUBLISHDGRAM = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ts', full_name='PublishDgram.ts', index=1,
-      number=2, type=4, cpp_type=4, label=2,
+      name='trunkid', full_name='PublishDgram.trunkid', index=1,
+      number=2, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='request', full_name='PublishDgram.request', index=2,
-      number=3, type=8, cpp_type=7, label=1,
+      name='trunktotal', full_name='PublishDgram.trunktotal', index=2,
+      number=3, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ts', full_name='PublishDgram.ts', index=3,
+      number=4, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='request', full_name='PublishDgram.request', index=4,
+      number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='topic', full_name='PublishDgram.topic', index=3,
-      number=4, type=9, cpp_type=9, label=2,
+      name='topic', full_name='PublishDgram.topic', index=5,
+      number=6, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ack', full_name='PublishDgram.ack', index=4,
-      number=5, type=13, cpp_type=3, label=3,
+      name='ack', full_name='PublishDgram.ack', index=6,
+      number=7, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='payload', full_name='PublishDgram.payload', index=5,
-      number=6, type=12, cpp_type=9, label=2,
+      name='payload', full_name='PublishDgram.payload', index=7,
+      number=8, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -87,64 +101,71 @@ _PUBLISHDGRAM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=16,
-  serialized_end=117,
+  serialized_start=17,
+  serialized_end=155,
 )
 
 
-_PUBLISHACKDGRAM = _descriptor.Descriptor(
-  name='PublishAckDgram',
-  full_name='PublishAckDgram',
+_DOWNSTREAMDGRAM = _descriptor.Descriptor(
+  name='DownstreamDgram',
+  full_name='DownstreamDgram',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='seq', full_name='PublishAckDgram.seq', index=0,
+      name='seq', full_name='DownstreamDgram.seq', index=0,
       number=1, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='T2', full_name='PublishAckDgram.T2', index=1,
-      number=2, type=4, cpp_type=4, label=2,
+      name='type', full_name='DownstreamDgram.type', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='T2', full_name='DownstreamDgram.T2', index=2,
+      number=3, type=4, cpp_type=4, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='T3', full_name='PublishAckDgram.T3', index=2,
-      number=3, type=4, cpp_type=4, label=1,
+      name='T3', full_name='DownstreamDgram.T3', index=3,
+      number=4, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='respondto', full_name='PublishAckDgram.respondto', index=3,
-      number=4, type=13, cpp_type=3, label=1,
+      name='respondto', full_name='DownstreamDgram.respondto', index=4,
+      number=5, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ack', full_name='PublishAckDgram.ack', index=4,
-      number=5, type=13, cpp_type=3, label=3,
+      name='ack', full_name='DownstreamDgram.ack', index=5,
+      number=6, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ackT2', full_name='PublishAckDgram.ackT2', index=5,
-      number=6, type=4, cpp_type=4, label=3,
+      name='ackT2', full_name='DownstreamDgram.ackT2', index=6,
+      number=7, type=4, cpp_type=4, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='payload', full_name='PublishAckDgram.payload', index=6,
-      number=7, type=12, cpp_type=9, label=1,
+      name='payload', full_name='DownstreamDgram.payload', index=7,
+      number=8, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -161,12 +182,226 @@ _PUBLISHACKDGRAM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=119,
-  serialized_end=237,
+  serialized_start=158,
+  serialized_end=290,
+)
+
+
+_DELIVERY = _descriptor.Descriptor(
+  name='Delivery',
+  full_name='Delivery',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='topic', full_name='Delivery.topic', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='payload', full_name='Delivery.payload', index=1,
+      number=2, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=292,
+  serialized_end=334,
+)
+
+
+_UPSTREAMMSG = _descriptor.Descriptor(
+  name='UpstreamMsg',
+  full_name='UpstreamMsg',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='seq', full_name='UpstreamMsg.seq', index=0,
+      number=1, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='UpstreamMsg.type', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='payload', full_name='UpstreamMsg.payload', index=2,
+      number=3, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=336,
+  serialized_end=393,
+)
+
+
+_SUBSCRIBEMSG = _descriptor.Descriptor(
+  name='SubscribeMsg',
+  full_name='SubscribeMsg',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='topic', full_name='SubscribeMsg.topic', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=395,
+  serialized_end=424,
+)
+
+
+_UNSUBSCRIBEMSG = _descriptor.Descriptor(
+  name='UnsubscribeMsg',
+  full_name='UnsubscribeMsg',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='topic', full_name='UnsubscribeMsg.topic', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=426,
+  serialized_end=457,
+)
+
+
+_DOWNSTREAMMSG = _descriptor.Descriptor(
+  name='DownstreamMsg',
+  full_name='DownstreamMsg',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='seq', full_name='DownstreamMsg.seq', index=0,
+      number=1, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='T2', full_name='DownstreamMsg.T2', index=1,
+      number=2, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='respondto', full_name='DownstreamMsg.respondto', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='DownstreamMsg.type', index=3,
+      number=4, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='payload', full_name='DownstreamMsg.payload', index=4,
+      number=5, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=459,
+  serialized_end=549,
 )
 
 DESCRIPTOR.message_types_by_name['PublishDgram'] = _PUBLISHDGRAM
-DESCRIPTOR.message_types_by_name['PublishAckDgram'] = _PUBLISHACKDGRAM
+DESCRIPTOR.message_types_by_name['DownstreamDgram'] = _DOWNSTREAMDGRAM
+DESCRIPTOR.message_types_by_name['Delivery'] = _DELIVERY
+DESCRIPTOR.message_types_by_name['UpstreamMsg'] = _UPSTREAMMSG
+DESCRIPTOR.message_types_by_name['SubscribeMsg'] = _SUBSCRIBEMSG
+DESCRIPTOR.message_types_by_name['UnsubscribeMsg'] = _UNSUBSCRIBEMSG
+DESCRIPTOR.message_types_by_name['DownstreamMsg'] = _DOWNSTREAMMSG
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 PublishDgram = _reflection.GeneratedProtocolMessageType('PublishDgram', (_message.Message,), {
@@ -176,12 +411,47 @@ PublishDgram = _reflection.GeneratedProtocolMessageType('PublishDgram', (_messag
   })
 _sym_db.RegisterMessage(PublishDgram)
 
-PublishAckDgram = _reflection.GeneratedProtocolMessageType('PublishAckDgram', (_message.Message,), {
-  'DESCRIPTOR' : _PUBLISHACKDGRAM,
+DownstreamDgram = _reflection.GeneratedProtocolMessageType('DownstreamDgram', (_message.Message,), {
+  'DESCRIPTOR' : _DOWNSTREAMDGRAM,
   '__module__' : 'models_pb2'
-  # @@protoc_insertion_point(class_scope:PublishAckDgram)
+  # @@protoc_insertion_point(class_scope:DownstreamDgram)
   })
-_sym_db.RegisterMessage(PublishAckDgram)
+_sym_db.RegisterMessage(DownstreamDgram)
+
+Delivery = _reflection.GeneratedProtocolMessageType('Delivery', (_message.Message,), {
+  'DESCRIPTOR' : _DELIVERY,
+  '__module__' : 'models_pb2'
+  # @@protoc_insertion_point(class_scope:Delivery)
+  })
+_sym_db.RegisterMessage(Delivery)
+
+UpstreamMsg = _reflection.GeneratedProtocolMessageType('UpstreamMsg', (_message.Message,), {
+  'DESCRIPTOR' : _UPSTREAMMSG,
+  '__module__' : 'models_pb2'
+  # @@protoc_insertion_point(class_scope:UpstreamMsg)
+  })
+_sym_db.RegisterMessage(UpstreamMsg)
+
+SubscribeMsg = _reflection.GeneratedProtocolMessageType('SubscribeMsg', (_message.Message,), {
+  'DESCRIPTOR' : _SUBSCRIBEMSG,
+  '__module__' : 'models_pb2'
+  # @@protoc_insertion_point(class_scope:SubscribeMsg)
+  })
+_sym_db.RegisterMessage(SubscribeMsg)
+
+UnsubscribeMsg = _reflection.GeneratedProtocolMessageType('UnsubscribeMsg', (_message.Message,), {
+  'DESCRIPTOR' : _UNSUBSCRIBEMSG,
+  '__module__' : 'models_pb2'
+  # @@protoc_insertion_point(class_scope:UnsubscribeMsg)
+  })
+_sym_db.RegisterMessage(UnsubscribeMsg)
+
+DownstreamMsg = _reflection.GeneratedProtocolMessageType('DownstreamMsg', (_message.Message,), {
+  'DESCRIPTOR' : _DOWNSTREAMMSG,
+  '__module__' : 'models_pb2'
+  # @@protoc_insertion_point(class_scope:DownstreamMsg)
+  })
+_sym_db.RegisterMessage(DownstreamMsg)
 
 
 # @@protoc_insertion_point(module_scope)

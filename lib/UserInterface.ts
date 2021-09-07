@@ -1,13 +1,14 @@
 export interface PublishOptions {
     topic: string;
-    payload: Uint8Array | string;
+    payload: Uint8Array;
+    trunkSize: number;
     /**
      * 需不需要服务端立刻发出确认消息
      */
     ack?: boolean;
 }
 
-export interface PublishResult {
+export interface PublishTrunkResult {
     /**
      * 客户端发送请求的时间戳
      */
@@ -26,8 +27,17 @@ export interface PublishResult {
     T4?: number;
 }
 
+export interface SubscribeOptions{
+    topic: string;
+}
+
 export interface DMQClientOptions {
     worker: boolean;
     timeoutInterval?: number;
     dgramTimeout?: number;
+}
+
+export interface DeliveryMessage {
+    topic: string;
+    payload: Uint8Array;
 }
