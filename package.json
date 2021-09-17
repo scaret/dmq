@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack -w",
+    "build": "webpack",
     "demo": "badcert -o dmq-demo",
     "proto-gen-ts": "./bin/protoc-3.17.3-osx-x86_64/bin/protoc -I=proto --js_out='import_style=commonjs,binary:lib/proto-gen' --ts_out=lib/proto-gen models.proto",
     "proto-gen-python": "./bin/protoc-3.17.3-osx-x86_64/bin/protoc -I=proto --python_out=server/protogen models.proto",
