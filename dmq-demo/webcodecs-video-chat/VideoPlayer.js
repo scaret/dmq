@@ -1,20 +1,20 @@
 class VideoPlayer{
     constructor(parentDom) {
-        self.parentDom = parentDom;
-        self.canvas = document.createElement("canvas")
-        self.ctx = self.canvas.getContext('2d');
-        self.parentDom.appendChild(self.canvas);
+        this.parentDom = parentDom;
+        this.canvas = document.createElement("canvas")
+        this.ctx = this.canvas.getContext('2d');
+        this.parentDom.appendChild(this.canvas);
     }
     adjustResolution(config){
-        if (self.canvas.width !== config.codedWidth){
-            self.canvas.width = config.codedWidth;
+        if (this.canvas.width !== config.codedWidth){
+            this.canvas.width = config.codedWidth;
         }
-        if (self.canvas.height !== config.codedHeight){
-            self.canvas.height = config.codedHeight;
+        if (this.canvas.height !== config.codedHeight){
+            this.canvas.height = config.codedHeight;
         }
-        console.log('Adjust Resolution to ', self.canvas.width, self.canvas.height);
+        console.log('Adjust Resolution to ', this.canvas.width, this.canvas.height);
     }
     drawFrame(f){
-        self.ctx.drawImage(f, 0, 0);
+        this.ctx.drawImage(f, 0, 0);
     }
 }

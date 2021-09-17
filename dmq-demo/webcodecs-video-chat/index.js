@@ -26,6 +26,15 @@ $("#connect-btn").on("click", ()=>{
     })
 })
 
+setTimeout(async ()=>{
+    const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+    mediaDevices.forEach((device)=>{
+        if (device.kind === "videoinput"){
+            $('#cameraid').append(`<option value="${device.deviceId}">${device.label}</option>`)
+        }
+    })
+})
+
 let i = 0;
 $("#pub-btn").on("click", async ()=>{
     const topic = $("#pub-topic").val();
@@ -73,6 +82,7 @@ $("#pub-btn").on("click", async ()=>{
             width: 640,
             height: 480,
             frameRate: 15,
+            deviceId: $("#cameraid").val(),
             // width: 1280,
             // height: 720,
             // frameRate: 30,
@@ -125,13 +135,6 @@ let remoteUsers = {
 function handleVideoMessage(evt){
     // console.log("on message", evt)
     //.................
-    let user = null;
-    function onFrameDecoded(videoFrame){
-        console.log("onFrameDecoded", videoFrame);
-        user.player.drawFrame(videoFrame)
-        videoFrame.close()
-    }
-    //.................
     // console.log("topic", evt.topic, "payload", evt.payload)
     const videoMessage = protobufRoot.lookupType("VideoMessage").decode(evt.payload);
     const pbEncodedVideoTrunk = videoMessage.trunk;
@@ -144,11 +147,16 @@ function handleVideoMessage(evt){
     };
     const encodedVideoTrunk = new EncodedVideoChunk(encodedVideoTrunkInit);
     if (!remoteUsers[evt.topic]){
-        remoteUsers[evt.topic] = user = {
+        console.log("topic", evt.topic);
+        remoteUsers[evt.topic] = {
             topic: evt.topic,
             player: new VideoPlayer(document.getElementById("onmessage-container")),
             decoder: new VideoDecoder({
-                output: onFrameDecoded,
+                output: (videoFrame)=>{
+                    console.log("onFrameDecoded", videoFrame);
+                    remoteUsers[evt.topic].player.drawFrame(videoFrame)
+                    videoFrame.close()
+                },
                 error: e =>{console.error(e)}
             })
         };

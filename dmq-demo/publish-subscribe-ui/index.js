@@ -64,10 +64,10 @@ function handleClientConnect(client){
         const now = new Date()
         switch($("#showType").val()){
             case "text":
-                $("#message-list").prepend(`\n${now.toISOString()} ${textDecoder.decode(evt.payload)}`)
+                $("#message-list").prepend(`\n${now.toISOString()} ${evt.topic} ${textDecoder.decode(evt.payload)}`)
                 break;
             case "buflen":
-                $("#message-list").prepend(`\n${now.toISOString()} payload len: ${evt.payload.length}`)
+                $("#message-list").prepend(`\n${now.toISOString()} ${evt.topic} payload len: ${evt.payload.length}`)
                 break;
         }
     })
