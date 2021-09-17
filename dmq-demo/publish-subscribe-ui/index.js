@@ -27,13 +27,25 @@ $("#connect-btn").on("click", ()=>{
 
 $("#pub-btn").on("click", async ()=>{
     const topic = $("#pub-topic").val();
+    let ack = undefined;
+    switch ($('#pub-ack').val()){
+        case "yes":
+            ack = true;
+            break;
+        case "no":
+            ack = false;
+            break;
+    }
+    let trunkSize = parseInt($("#pub-trunksize").val());
     const payload = textEncoder.encode($("#pub-payload").val());
-    const result = await dmqClient.publish({
+    const pubOptions = {
         topic,
         payload,
-        ack: true,
-    })
-    console.log("Pub result", result);
+        ack,
+        trunkSize,
+    }
+    const result = await dmqClient.publish(pubOptions)
+    console.log("Publish options", pubOptions,  "result", result);
 })
 
 

@@ -13,7 +13,15 @@
             </select>
         </label>
         <label>
-            服务端地址：<input id="broker-url" size="40" value="https://ip-127-0-0-1.wrtc.dev:4434/counter">
+            自动订阅所有人
+            <input type="checkbox" id="suball" checked>
+        </label>
+        <label>
+            服务端地址：
+            <select id="broker-url">
+                <option value="https://localhost.wrtc.dev:4434/counter">本机</option>
+                <option selected value="https://ci.wrtc.dev:4434/counter">云信内网</option>
+            </select>
         </label>
         <button id="connect-btn">连接</button><span id="connect-result"></span>
     </div>
@@ -22,9 +30,6 @@
         <h5>发布</h5>
         <label>
             Topic: <input id="pub-topic" size="40" value="abcd">
-        </label>
-        <label>
-            Payload: <input id="pub-payload" size="40" value="你好">
         </label>
         <button id="pub-btn">发布</button>
     </div>
@@ -40,18 +45,14 @@
     </div>
 
     <div id="onmessage-container" style="border-top: 1px solid black; display: none" class="container-connected">
-        <h5>订阅消息列表（最新的在最上边）
-            <select id="showType">
-                <option value="text">将payload转为文本</option>
-                <option value="buflen">仅显示payload长度</option>
-            </select>
-        </h5>
-        <textarea id="message-list" cols="60" rows="20"></textarea>
+        <h5>订阅视频</h5>
     </div>
 
     <script src="../../dist/DMQ.js"></script>
     <script src="../vendor/jquery-3.6.0.min.js"></script>
     <script src="../vendor/protobufjs-v6.11.2/protobuf.min.js"></script>
+
+    <script src="./VideoPlayer.js"></script>
     <script src="./index.js"></script>
 </body>
 </html>

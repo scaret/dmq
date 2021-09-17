@@ -43,7 +43,7 @@ class WTClient {
             const {value, done} = await reader.read();
             let now = Date.now();
             if (done) {
-                console.log('Done reading datagrams!');
+                console.error('Done reading datagrams!');
                 return;
             }
             if (this.onmessage) {

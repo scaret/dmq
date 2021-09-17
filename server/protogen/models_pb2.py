@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cmodels.proto\"\x8a\x01\n\x0cPublishDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0f\n\x07trunkid\x18\x02 \x02(\r\x12\x12\n\ntrunktotal\x18\x03 \x02(\r\x12\n\n\x02ts\x18\x04 \x02(\x04\x12\x0f\n\x07request\x18\x05 \x01(\x08\x12\r\n\x05topic\x18\x06 \x02(\t\x12\x0b\n\x03\x61\x63k\x18\x07 \x03(\r\x12\x0f\n\x07payload\x18\x08 \x02(\x0c\"\x84\x01\n\x0f\x44ownstreamDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\n\n\x02T2\x18\x03 \x02(\x04\x12\n\n\x02T3\x18\x04 \x01(\x04\x12\x11\n\trespondto\x18\x05 \x01(\r\x12\x0b\n\x03\x61\x63k\x18\x06 \x03(\r\x12\r\n\x05\x61\x63kT2\x18\x07 \x03(\x04\x12\x0f\n\x07payload\x18\x08 \x01(\x0c\"*\n\x08\x44\x65livery\x12\r\n\x05topic\x18\x01 \x02(\t\x12\x0f\n\x07payload\x18\x02 \x02(\x0c\"9\n\x0bUpstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\x0f\n\x07payload\x18\x03 \x01(\x0c\"\x1d\n\x0cSubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"\x1f\n\x0eUnsubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"Z\n\rDownstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\n\n\x02T2\x18\x02 \x01(\x04\x12\x11\n\trespondto\x18\x03 \x01(\r\x12\x0c\n\x04type\x18\x04 \x02(\t\x12\x0f\n\x07payload\x18\x05 \x01(\x0c'
+  serialized_pb=b'\n\x0cmodels.proto\"\xa1\x01\n\x0cPublishDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0f\n\x07trunkid\x18\x02 \x02(\r\x12\x12\n\ntrunktotal\x18\x03 \x02(\r\x12\x15\n\rtrunkstartseq\x18\x04 \x02(\r\x12\n\n\x02ts\x18\x05 \x02(\x04\x12\x0f\n\x07request\x18\x06 \x01(\x08\x12\r\n\x05topic\x18\x07 \x02(\t\x12\x0b\n\x03\x61\x63k\x18\x08 \x03(\r\x12\x0f\n\x07payload\x18\t \x02(\x0c\"h\n\x0f\x44ownstreamDgram\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\n\n\x02T2\x18\x03 \x02(\x04\x12\n\n\x02T3\x18\x04 \x01(\x04\x12\x11\n\trespondto\x18\x05 \x01(\r\x12\x0f\n\x07payload\x18\x08 \x01(\x0c\"z\n\x08\x44\x65livery\x12\x0e\n\x06userid\x18\x01 \x02(\r\x12\x0f\n\x07trunkid\x18\x02 \x02(\r\x12\x12\n\ntrunktotal\x18\x03 \x02(\r\x12\x19\n\x11usertrunkstartseq\x18\x05 \x02(\r\x12\r\n\x05topic\x18\x06 \x02(\t\x12\x0f\n\x07payload\x18\x07 \x02(\x0c\"9\n\x0bUpstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\x0c\n\x04type\x18\x02 \x02(\t\x12\x0f\n\x07payload\x18\x03 \x01(\x0c\"\x1d\n\x0cSubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"\x1f\n\x0eUnsubscribeMsg\x12\r\n\x05topic\x18\x01 \x02(\t\"Z\n\rDownstreamMsg\x12\x0b\n\x03seq\x18\x01 \x02(\r\x12\n\n\x02T2\x18\x02 \x01(\x04\x12\x11\n\trespondto\x18\x03 \x01(\r\x12\x0c\n\x04type\x18\x04 \x02(\t\x12\x0f\n\x07payload\x18\x05 \x01(\x0c'
 )
 
 
@@ -55,36 +55,43 @@ _PUBLISHDGRAM = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ts', full_name='PublishDgram.ts', index=3,
-      number=4, type=4, cpp_type=4, label=2,
+      name='trunkstartseq', full_name='PublishDgram.trunkstartseq', index=3,
+      number=4, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='request', full_name='PublishDgram.request', index=4,
-      number=5, type=8, cpp_type=7, label=1,
+      name='ts', full_name='PublishDgram.ts', index=4,
+      number=5, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='request', full_name='PublishDgram.request', index=5,
+      number=6, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='topic', full_name='PublishDgram.topic', index=5,
-      number=6, type=9, cpp_type=9, label=2,
+      name='topic', full_name='PublishDgram.topic', index=6,
+      number=7, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ack', full_name='PublishDgram.ack', index=6,
-      number=7, type=13, cpp_type=3, label=3,
+      name='ack', full_name='PublishDgram.ack', index=7,
+      number=8, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='payload', full_name='PublishDgram.payload', index=7,
-      number=8, type=12, cpp_type=9, label=2,
+      name='payload', full_name='PublishDgram.payload', index=8,
+      number=9, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -102,7 +109,7 @@ _PUBLISHDGRAM = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=155,
+  serialized_end=178,
 )
 
 
@@ -150,21 +157,7 @@ _DOWNSTREAMDGRAM = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ack', full_name='DownstreamDgram.ack', index=5,
-      number=6, type=13, cpp_type=3, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ackT2', full_name='DownstreamDgram.ackT2', index=6,
-      number=7, type=4, cpp_type=4, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='payload', full_name='DownstreamDgram.payload', index=7,
+      name='payload', full_name='DownstreamDgram.payload', index=5,
       number=8, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
@@ -182,8 +175,8 @@ _DOWNSTREAMDGRAM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=158,
-  serialized_end=290,
+  serialized_start=180,
+  serialized_end=284,
 )
 
 
@@ -196,15 +189,43 @@ _DELIVERY = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='topic', full_name='Delivery.topic', index=0,
-      number=1, type=9, cpp_type=9, label=2,
+      name='userid', full_name='Delivery.userid', index=0,
+      number=1, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='trunkid', full_name='Delivery.trunkid', index=1,
+      number=2, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='trunktotal', full_name='Delivery.trunktotal', index=2,
+      number=3, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='usertrunkstartseq', full_name='Delivery.usertrunkstartseq', index=3,
+      number=5, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='topic', full_name='Delivery.topic', index=4,
+      number=6, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='payload', full_name='Delivery.payload', index=1,
-      number=2, type=12, cpp_type=9, label=2,
+      name='payload', full_name='Delivery.payload', index=5,
+      number=7, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -221,8 +242,8 @@ _DELIVERY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=292,
-  serialized_end=334,
+  serialized_start=286,
+  serialized_end=408,
 )
 
 
@@ -267,8 +288,8 @@ _UPSTREAMMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=336,
-  serialized_end=393,
+  serialized_start=410,
+  serialized_end=467,
 )
 
 
@@ -299,8 +320,8 @@ _SUBSCRIBEMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=395,
-  serialized_end=424,
+  serialized_start=469,
+  serialized_end=498,
 )
 
 
@@ -331,8 +352,8 @@ _UNSUBSCRIBEMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=426,
-  serialized_end=457,
+  serialized_start=500,
+  serialized_end=531,
 )
 
 
@@ -391,8 +412,8 @@ _DOWNSTREAMMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=459,
-  serialized_end=549,
+  serialized_start=533,
+  serialized_end=623,
 )
 
 DESCRIPTOR.message_types_by_name['PublishDgram'] = _PUBLISHDGRAM

@@ -9,7 +9,6 @@ export interface MsgReq {
     type?: string;
     T1?: number;
     T2?: number;
-    ackReceived?: boolean;
     resolve: (data: any) => any
     reject: (err: any) => any
 }

@@ -1,4 +1,4 @@
-import models_pb from "../proto-gen/models_pb"
+import models_pb, {Delivery} from "../proto-gen/models_pb"
 import WorkerAgent from "../worker/WorkerAgent"
 import {MsgReq, ThreadControlMessage, DatagramMessage, QuicMessage} from "../MsgMainToWorker";
 import { EventEmitter } from "eventemitter3";
@@ -26,13 +26,18 @@ class DMQClient extends EventEmitter{
     dgram: {
         msgid: number;
         pendingReqs: MsgReq[],
-        ack: number[],//粗暴
-    } = {msgid: 0, pendingReqs: [], ack: []}
+    } = {msgid: 0, pendingReqs: []}
     quic: {
         msgid: number;
         pendingReqs: MsgReq[],
-        ack: number[],//粗暴
-    } = {msgid: 0, pendingReqs: [], ack: []}
+    } = {msgid: 0, pendingReqs: []}
+    deliveryMap: {
+        [userid: number]: {
+            [usertrunkstartseq: number]: {
+                deliveries: Delivery[],
+            }
+        }
+    } = {}
     private timer?: ReturnType<typeof setInterval>;
     private timeout: number;
 
@@ -47,7 +52,7 @@ class DMQClient extends EventEmitter{
         this.timeout = options.dgramTimeout || 3000
         this.startTimeoutChecker()
         this.worker.onmessage = (evt: { data: ThreadControlAckMessage | DatagramDownstreamMessage | DatagramSignalSent }) => {
-            // console.log("onmessage", evt.data);
+            // console.log("onmessage", evt.data.type);
             if (evt.data.type === "DMQ_CONNECT_SUCCESS" || evt.data.type === "DMQ_CONNECT_FAIL") {
                 const index = this.thread.pendingReqs.findIndex((msg) => msg.type === "DMQ_CONNECT");
                 if (index === -1) {
@@ -59,34 +64,22 @@ class DMQClient extends EventEmitter{
                 evt.data.type === "DMQ_CONNECT_SUCCESS" ? req.resolve(evt.data) : req.reject(evt.data)
             } else if (evt.data.type === "DMQ_DATAGRAM_SIGNAL_SENT") {
                 const signalSent = evt.data as DatagramSignalSent;
-                const msgReq = this.dgram.pendingReqs.find((req) => req.msgid === signalSent.msgid);
-                if (msgReq) {
-                    msgReq.T1 = signalSent.T1;
+                const msgReqId = this.dgram.pendingReqs.findIndex((req) => req.msgid === signalSent.msgid);
+                if (msgReqId === -1){
+                    return;
+                }
+                const msgReq = this.dgram.pendingReqs[msgReqId];
+                msgReq.T1 = signalSent.T1;
+                if (msgReq.type === "DMQ_REPORT"){
+                    // 已发送的UDP包，无需等待服务端返回
+                    this.dgram.pendingReqs.splice(msgReqId, 1);
+                    msgReq.resolve({T1: signalSent.T1});
                 }
             } else if (evt.data.type === "DMQ_DOWNSTREAM") {
                 const downstreamMessage = evt.data as DatagramDownstreamMessage
                 const pbMsgDown = models_pb.DownstreamDgram.deserializeBinary(downstreamMessage.buf);
-                this.dgram.ack = ([] as number[]).concat(pbMsgDown.getAckList())
                 const respondTo = pbMsgDown.getRespondto()
-                pbMsgDown.getAckList().forEach((ack: number, index) => {
-                    const i = this.dgram.pendingReqs.findIndex((req) => req.msgid === ack);
-                    const msgReq = this.dgram.pendingReqs[i];
-                    if (!msgReq) {
-                        return;
-                    }
-                    msgReq.ackReceived = true;
-                    msgReq.T2 = pbMsgDown.getAckt2List()[index];
-                    if (msgReq.type === "DMQ_REPORT") {
-                        this.dgram.pendingReqs.splice(i, 1);
-                        const publishRes: PublishTrunkResult = {
-                            T1: msgReq.T1,
-                            T2: pbMsgDown.getAckt2List()[index],
-                        }
-                        msgReq.resolve(publishRes);
-                    }
-                });
                 if (respondTo) {
-                    this.dgram.ack.push(respondTo);
                     const i = this.dgram.pendingReqs.findIndex((req) => req.msgid === respondTo);
                     if (i < 0) {
                         // console.error(`Res not found`, respondTo, i);
@@ -104,10 +97,48 @@ class DMQClient extends EventEmitter{
                 if (pbMsgDown.getType() === "DELIVERY"){
                     let buf = (pbMsgDown.getPayload() as Uint8Array);
                     let pbDelivery = models_pb.Delivery.deserializeBinary(buf);
-                    this.emit("message", {
-                        topic: pbDelivery.getTopic(),
-                        payload: pbDelivery.getPayload()
-                    } as DeliveryMessage)
+                    //
+                    const userid = pbDelivery.getUserid();
+                    const usertrunkstartseq = pbDelivery.getUsertrunkstartseq()
+                    const trunkid = pbDelivery.getTrunkid(); // 从1开始
+                    const trunktotal = pbDelivery.getTrunktotal(); // 从1开始
+                    if (!userid || !usertrunkstartseq || !trunkid || !trunktotal){
+                        console.log("Invalid packet", pbDelivery.toObject());
+                        return;
+                    }
+                    if (!this.deliveryMap[userid]){
+                        this.deliveryMap[userid] = {}
+                    }
+                    if (!this.deliveryMap[userid][usertrunkstartseq]){
+                        this.deliveryMap[userid][usertrunkstartseq] = {deliveries: []}
+                    }
+                    this.deliveryMap[userid][usertrunkstartseq].deliveries[trunkid - 1] = pbDelivery
+                    // 判断是否可以组合chunk
+                    let completeMessage = true;
+                    let completeLen = 0;
+                    for (let i = 0; i < trunktotal; i++){
+                        const delivery = this.deliveryMap[userid][usertrunkstartseq].deliveries[i];
+                        if (!delivery){
+                            completeMessage = false;
+                            break;
+                        }else{
+                            completeLen += delivery.getPayload().length
+                        }
+                    }
+                    if (completeMessage){
+                        const payload = new Uint8Array(completeLen)
+                        let offset = 0;
+                        for (let i = 0; i < trunktotal; i++){
+                            const delivery = this.deliveryMap[userid][usertrunkstartseq].deliveries[i];
+                            const chunkPayload = delivery.getPayload() as Uint8Array;
+                            payload.set(chunkPayload, offset)
+                            offset += chunkPayload.length
+                        }
+                        this.emit("message", {
+                            topic: pbDelivery.getTopic(),
+                            payload: payload
+                        } as DeliveryMessage)
+                    }
                 }
             } else if (evt.data.type === "DMQ_QUIC_SIGNAL_SENT") {
                 const signalSent = evt.data as QuicSignalSent;
@@ -186,13 +217,10 @@ class DMQClient extends EventEmitter{
                 let req = this.dgram.pendingReqs[i];
                 if (req.T1 && now - req.T1 > this.timeout) {
                     this.dgram.pendingReqs.splice(i, 1);
-                    if (req.type === "DMQ_REQUEST" && req.ackReceived) {
-                        req.resolve({
-                            T1: req.T1,
-                            T2: req.T2,
-                        })
-                    }
-                    req.reject(new Error("TIMEOUT"));
+                    req.resolve(req.resolve({
+                        T1: req.T1,
+                        T2: req.T2,
+                    }));
                 }
             }
         }, this.interval);
@@ -209,27 +237,37 @@ class DMQClient extends EventEmitter{
     async publish(options: PublishOptions) {
         const promises = [];
         if(!options.trunkSize){
-            options.trunkSize = 1000;
+            options.trunkSize = 512;
         }
         const trunkCnt = Math.ceil(options.payload.length / options.trunkSize);
+        const trunkstartseq = this.dgram.msgid + 1
         for (let i = 1; i <= trunkCnt; i++){
             const msgid = ++this.dgram.msgid;
             const transportMessage = new models_pb.PublishDgram();
             transportMessage.setSeq(msgid);
             transportMessage.setTrunkid(i);
             transportMessage.setTrunktotal(trunkCnt);
+            transportMessage.setTrunkstartseq(trunkstartseq);
             transportMessage.setTs(Date.now());
-            transportMessage.setRequest(options.ack || false);
+            if (typeof options.ack === "boolean"){
+                transportMessage.setRequest(options.ack);
+            }else{
+                if (i === trunkCnt){
+                    // 分拆的最后一个消息求一个ack
+                    transportMessage.setRequest(true);
+                }else{
+                    transportMessage.setRequest(false);
+                }
+            }
             transportMessage.setTopic(options.topic);
-            transportMessage.setAckList(this.dgram.ack);
             transportMessage.setPayload(options.payload.subarray((i - 1) * options.trunkSize, i * options.trunkSize));
             const buf = transportMessage.serializeBinary();
 
             const p =  this.sendDgramMsg({
-                type: options.ack ? "DMQ_REQUEST" : "DMQ_REPORT",
+                type: transportMessage.getRequest() ? "DMQ_REQUEST" : "DMQ_REPORT",
                 msgid,
                 buf,
-                timeout: 5000,
+                timeout: 3000,
             }, msgid);
             promises.push(p)
         }

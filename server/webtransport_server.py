@@ -46,8 +46,6 @@ class CounterHandler:
         self._http = http
         self._counters = defaultdict(int)
         self.seq = 0
-        self.msgReq = []
-        self.msgReqT2 = []
         self.quicSeq = 0
         self.subscribedTopics = []
         userCnt += 1
@@ -58,13 +56,6 @@ class CounterHandler:
         if isinstance(event, DatagramReceived):
             reqMsg = models_pb2.PublishDgram()
             reqMsg.ParseFromString(event.data)
-            for ackid in reqMsg.ack:
-                try:
-                    index = self.msgReq.index(ackid)
-                    del self.msgReq[index]
-                    del self.msgReqT2[index]
-                except:
-                    continue
             if reqMsg.request:
                 # UDP Publish
                 resMsg = models_pb2.DownstreamDgram()
@@ -73,33 +64,30 @@ class CounterHandler:
                 resMsg.type = "ACK"
                 resMsg.T2 = now
                 resMsg.respondto = reqMsg.seq
-                resMsg.ack.extend(self.msgReq)
-                resMsg.ackT2.extend(self.msgReqT2)
-#                 print("resMsg", resMsg)
                 self._http.send_datagram(self._session_id, resMsg.SerializeToString())
-            self.msgReq.append(reqMsg.seq)
-            self.msgReqT2.append(now)
+                # 只有request为true的上行消息才有ACK
             # 广播消息
             deliveryMsg = models_pb2.Delivery()
+            deliveryMsg.userid = self.userid
+            deliveryMsg.trunkid = reqMsg.trunkid
+            deliveryMsg.trunktotal = reqMsg.trunktotal
+            deliveryMsg.usertrunkstartseq = reqMsg.trunkstartseq
             deliveryMsg.topic = reqMsg.topic
             deliveryMsg.payload = reqMsg.payload
-            print("=====Delivery message from #", self.userid ,"on topic", deliveryMsg.topic, "packet" , reqMsg.trunkid, "/" , reqMsg.trunktotal, len(deliveryMsg.payload))
+#             print("=====Delivery message from #", self.userid, "/", reqMsg.trunkid, "on topic", deliveryMsg.topic, "packet" , reqMsg.trunkid, "/" , reqMsg.trunktotal, "payload length", len(deliveryMsg.payload))
             downstreamMsg = models_pb2.DownstreamDgram()
             downstreamMsg.T2 = now
             downstreamMsg.type = "DELIVERY"
-            downstreamMsg.ack.extend(self.msgReq)
-            downstreamMsg.ackT2.extend(self.msgReqT2)
             downstreamMsg.payload = deliveryMsg.SerializeToString()
 
             if reqMsg.topic in topics:
                 for user in topics[reqMsg.topic]:
                     user.seq += 1
                     downstreamMsg.seq = user.seq
-                    downstreamMsg.ack.extend(user.msgReq)
-                    downstreamMsg.ackT2.extend(user.msgReqT2)
                     downstreamMsg.T3 = round(time.time() * 1000)
-                    print("DELIVER on topic", reqMsg.topic, "from user #", self.userid ,"to user #" , user.userid, "payload length", len(downstreamMsg.payload))
-                    user._http.send_datagram(user._session_id, downstreamMsg.SerializeToString())
+                    buf = downstreamMsg.SerializeToString()
+                    print("DELIVER on topic", reqMsg.topic, "from user #", self.userid ,"to user #" , user.userid, "payload length", len(buf))
+                    user._http.send_datagram(user._session_id, buf)
 
         if isinstance(event, WebTransportStreamDataReceived):
             quicReqMsg = models_pb2.UpstreamMsg()

@@ -19,6 +19,11 @@ export class PublishDgram extends jspb.Message {
   getTrunktotal(): number | undefined;
   setTrunktotal(value: number): void;
 
+  hasTrunkstartseq(): boolean;
+  clearTrunkstartseq(): void;
+  getTrunkstartseq(): number | undefined;
+  setTrunkstartseq(value: number): void;
+
   hasTs(): boolean;
   clearTs(): void;
   getTs(): number | undefined;
@@ -33,11 +38,6 @@ export class PublishDgram extends jspb.Message {
   clearTopic(): void;
   getTopic(): string | undefined;
   setTopic(value: string): void;
-
-  clearAckList(): void;
-  getAckList(): Array<number>;
-  setAckList(value: Array<number>): void;
-  addAck(value: number, index?: number): number;
 
   hasPayload(): boolean;
   clearPayload(): void;
@@ -61,10 +61,10 @@ export namespace PublishDgram {
     seq?: number,
     trunkid?: number,
     trunktotal?: number,
+    trunkstartseq?: number,
     ts?: number,
     request?: boolean,
     topic?: string,
-    ackList: Array<number>,
     payload: Uint8Array | string,
   }
 }
@@ -95,16 +95,6 @@ export class DownstreamDgram extends jspb.Message {
   getRespondto(): number | undefined;
   setRespondto(value: number): void;
 
-  clearAckList(): void;
-  getAckList(): Array<number>;
-  setAckList(value: Array<number>): void;
-  addAck(value: number, index?: number): number;
-
-  clearAckt2List(): void;
-  getAckt2List(): Array<number>;
-  setAckt2List(value: Array<number>): void;
-  addAckt2(value: number, index?: number): number;
-
   hasPayload(): boolean;
   clearPayload(): void;
   getPayload(): Uint8Array | string;
@@ -129,13 +119,31 @@ export namespace DownstreamDgram {
     t2?: number,
     t3?: number,
     respondto?: number,
-    ackList: Array<number>,
-    ackt2List: Array<number>,
     payload: Uint8Array | string,
   }
 }
 
 export class Delivery extends jspb.Message {
+  hasUserid(): boolean;
+  clearUserid(): void;
+  getUserid(): number | undefined;
+  setUserid(value: number): void;
+
+  hasTrunkid(): boolean;
+  clearTrunkid(): void;
+  getTrunkid(): number | undefined;
+  setTrunkid(value: number): void;
+
+  hasTrunktotal(): boolean;
+  clearTrunktotal(): void;
+  getTrunktotal(): number | undefined;
+  setTrunktotal(value: number): void;
+
+  hasUsertrunkstartseq(): boolean;
+  clearUsertrunkstartseq(): void;
+  getUsertrunkstartseq(): number | undefined;
+  setUsertrunkstartseq(value: number): void;
+
   hasTopic(): boolean;
   clearTopic(): void;
   getTopic(): string | undefined;
@@ -160,6 +168,10 @@ export class Delivery extends jspb.Message {
 
 export namespace Delivery {
   export type AsObject = {
+    userid?: number,
+    trunkid?: number,
+    trunktotal?: number,
+    usertrunkstartseq?: number,
     topic?: string,
     payload: Uint8Array | string,
   }

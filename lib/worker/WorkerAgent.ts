@@ -57,6 +57,9 @@ class WorkerAgent {
 
     //子线程调用，向主线程发送消息
     sendMessageToMainThread(data: ThreadControlAckMessage | DatagramDownstreamMessage | DatagramSignalSent | QuicDownstreamMessage| QuicSignalSent) {
+        // if (data.type !== "DMQ_DATAGRAM_SIGNAL_SENT"){
+        //     console.log("onmessage2", data.type);
+        // }
         // in a worker
         if (this.workerThread) {
             this.workerThread.postMessage(data);

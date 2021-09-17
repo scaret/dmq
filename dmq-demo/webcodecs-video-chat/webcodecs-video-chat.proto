@@ -1,8 +1,32 @@
 syntax = "proto2";
 
+message VideoMessage{
+  required EncodedVideoTrunk trunk = 1;
+  optional VideoDecodeConfig config = 2;
+}
+
 message EncodedVideoTrunk{
   required string type = 1; // key|delta
   required uint64 timestamp = 2;
   required uint64 duration = 3;
   required bytes data = 4;
+}
+
+// https://www.w3.org/TR/webcodecs/#video-decoder-config
+message VideoDecodeConfig{
+  required string codec = 1;
+  optional bytes description = 2;
+  optional uint32 codedWidth = 3;
+  optional uint32 codedHeight = 4;
+//  optional uint32 displayAspectWidth = 5;
+//  optional uint32 displayAspectHeight = 6;
+  optional VideoColorSpaceInit colorSpace = 7;
+//  optional string hardwareAcceleration = 8;
+}
+
+message VideoColorSpaceInit{
+    optional bool fullRange = 1;
+    optional string matrix = 2;
+    optional string primaries = 3;
+    optional string  transfer = 4;
 }

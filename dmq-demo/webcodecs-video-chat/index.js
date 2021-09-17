@@ -26,38 +26,56 @@ $("#connect-btn").on("click", ()=>{
     })
 })
 
+let i = 0;
 $("#pub-btn").on("click", async ()=>{
     const topic = $("#pub-topic").val();
     const init = {
-        output: async (chunk, config)=>{
+        output: async (chunk, encodeConfig)=>{
+            // console.log("publish chunk #", i, chunk)
             const data = new Uint8Array(chunk.byteLength);
             chunk.copyTo(data)
             // console.log("chunk", chunk);
-            const payload = {
+            const trunk = {
                 type: chunk.type,
                 timestamp: chunk.timestamp,
                 duration: chunk.duration,
                 data: data,
             }
-            const u8Arr = protobufRoot.lookupType("EncodedVideoTrunk").encode(payload).finish();
+            let config = null
+            if (chunk.type === "key"){
+                console.log("publish encodeConfig", encodeConfig);
+                config = Object.assign({}, encodeConfig.decoderConfig);
+                config.description = new Uint8Array(encodeConfig.decoderConfig.description)
+                publishConfig = config
+            }
+
+            const u8Arr = protobufRoot.lookupType("VideoMessage").encode({trunk, config}).finish();
             const publishOptions = {
                 topic: topic,
                 payload: u8Arr,
-                ack: true,
             }
             const result = await dmqClient.publish(publishOptions)
-            console.log("publish result", result);
         },
         error: (e)=>{
             console.error(e);
         }
     }
 
+    setInterval(()=>{
+        dmqClient.publish({
+            topic: 'user-publish-keepalive',
+            payload: textEncoder.encode(JSON.stringify({topic: $("#pub-topic").val()})),
+        })
+    }, 5000);
+
 
     const mediaStream = await navigator.mediaDevices.getUserMedia({video: {
             width: 640,
             height: 480,
             frameRate: 15,
+            // width: 1280,
+            // height: 720,
+            // frameRate: 30,
         }});
     const videoTrack = mediaStream.getVideoTracks()[0];
     const settings = videoTrack.getSettings();
@@ -77,13 +95,14 @@ $("#pub-btn").on("click", async ()=>{
     const reader = media_processor.readable.getReader();
     while(true){
         const {done, value} = await reader.read()
+        i++;
         if (done){
             console.log("done")
             break;
         }
         // console.log("done", done, "value", value);
         if (value){
-            encoder.encode(value)
+            encoder.encode(value, {keyFrame: i%5 === 1})
             value.close()
         }
     }
@@ -99,17 +118,78 @@ $("#sub-btn").on("click", async ()=>{
     console.log("Sub result", result)
 })
 
-function handleClientConnect(client){
-    client.on("message", (evt)=>{
-        console.log("topic", evt.topic, "payload", evt.payload)
-        const now = new Date()
-        switch($("#showType").val()){
-            case "text":
-                $("#message-list").prepend(`\n${now.toISOString()} ${textDecoder.decode(evt.payload)}`)
-                break;
-            case "buflen":
-                $("#message-list").prepend(`\n${now.toISOString()} payload len: ${evt.payload.length}`)
-                break;
+let remoteUsers = {
+
+}
+
+function handleVideoMessage(evt){
+    // console.log("on message", evt)
+    //.................
+    let user = null;
+    function onFrameDecoded(videoFrame){
+        console.log("onFrameDecoded", videoFrame);
+        user.player.drawFrame(videoFrame)
+        videoFrame.close()
+    }
+    //.................
+    // console.log("topic", evt.topic, "payload", evt.payload)
+    const videoMessage = protobufRoot.lookupType("VideoMessage").decode(evt.payload);
+    const pbEncodedVideoTrunk = videoMessage.trunk;
+    // console.log("pbEncodedVideoTrunk", pbEncodedVideoTrunk);
+    const encodedVideoTrunkInit = {
+        type: pbEncodedVideoTrunk.type,
+        timestamp: pbEncodedVideoTrunk.timestamp,
+        duration: pbEncodedVideoTrunk.duration,
+        data: pbEncodedVideoTrunk.data
+    };
+    const encodedVideoTrunk = new EncodedVideoChunk(encodedVideoTrunkInit);
+    if (!remoteUsers[evt.topic]){
+        remoteUsers[evt.topic] = user = {
+            topic: evt.topic,
+            player: new VideoPlayer(document.getElementById("onmessage-container")),
+            decoder: new VideoDecoder({
+                output: onFrameDecoded,
+                error: e =>{console.error(e)}
+            })
+        };
+    }
+    if (videoMessage.config){
+        console.log("subscribe Configure", videoMessage.config)
+        remoteUsers[evt.topic].decoder.configure(videoMessage.config)
+        remoteUsers[evt.topic].player.adjustResolution(videoMessage.config)
+        // remoteUsers[evt.topic].decoder.configure(publishConfig)
+        // remoteUsers[evt.topic].player.adjustResolution(publishConfig)
+    }
+    // console.log("Going to deccode encodedVideoTrunk", encodedVideoTrunk);
+    remoteUsers[evt.topic].decoder.decode(encodedVideoTrunk);
+}
+
+async function handleClientConnect(client){
+    if ($("#suball").prop("checked")){
+        const userTopic = "user-publish-keepalive";
+        const result = await dmqClient.subscribe({
+            topic: userTopic,
+        })
+        $("#sub-topics").append(`<li>${userTopic}</li>`)
+        console.log("Sub result", result)
+    }
+
+    client.on("message", async (evt)=>{
+        if (evt.topic.indexOf("user/") === 0){
+            handleVideoMessage(evt)
+        }else if (evt.topic === "user-publish-keepalive"){
+            const str = textDecoder.decode(evt.payload)
+            const topic = JSON.parse(str).topic
+            console.log("user-publish-keepalive", topic)
+            if (dmqClient && dmqClient.topics.indexOf(topic) === -1){
+                const result = await dmqClient.subscribe({
+                    topic,
+                })
+                $("#sub-topics").append(`<li>${topic}</li>`)
+                console.log("Sub result", result)
+            }
+        }else{
+            console.log("Unrecognized event", evt);
         }
     })
 }
@@ -118,6 +198,7 @@ function handleClientConnect(client){
 const main = async ()=>{
     const uid = Math.floor(Math.random() * 9000 + 1000)
     $("#pub-topic").val(`user/${uid}`)
+    $("#sub-topic").val(`user/${uid}`)
     protobuf.load("./webcodecs-video-chat.proto", ((err, root)=>{
         protobufRoot = root;
         console.log("Loaded protobufRoot", protobufRoot);

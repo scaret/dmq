@@ -9,9 +9,10 @@
             模式
             <select id="worker">
                 <option value="yes">worker</option>
-                <option value="no">非worker</option>
+                <option value="no" selected>非worker</option>
             </select>
         </label>
+
         <label>
             服务端地址：<input id="broker-url" size="40" value="https://ip-127-0-0-1.wrtc.dev:4434/counter">
         </label>
@@ -26,6 +27,18 @@
         <label>
             Payload: <input id="pub-payload" size="40" value="你好">
         </label>
+        <label>
+            trunkSize: <input id="pub-trunksize" size="5" value="512">
+        </label>
+        <label>
+            需要ACK:
+            <select id="pub-ack">
+                <option value="default">默认</option>
+                <option value="yes">true</option>
+                <option value="no" selected>false</option>
+            </select>
+        </label>
+
         <button id="pub-btn">发布</button>
     </div>
 
