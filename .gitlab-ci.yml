@@ -1,0 +1,9 @@
+stages: # 阶段
+  - hello
+
+hello-job:
+  tags:
+    - yxfe
+  stage: hello
+  script:
+    - echo "hello world"
